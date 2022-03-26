@@ -1,7 +1,7 @@
-const makerpage = (req, res) => {
+const makerPage = (req, res) => {
   res.render('app');
 };
 
 module.exports = {
-  makerpage,
+  makerPage,
 };
