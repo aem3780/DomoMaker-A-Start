@@ -8,18 +8,28 @@ const mongoose = require('mongoose');
 const expressHandlebars = require('express-handlebars');
 const helmet = require('helmet');
 const session = require('express-session');
+const RedisStore = require('connect-redis')(session);
+const redis = require('redis');
 
 const router = require('./router.js');
 
 const port = process.env.PORT || process.env.NODE_PORT || 3000;
 
-const dbURI = process.env.MONGODB_URI || 'mongodb://127.0.0.1/DomoMaker';
+const dbURI = process.env.MONGODB_URI || 'mongodb+srv://alliemaus:June1301Pepper13@cluster0.damx6.mongodb.net/maus-domo-maker?';
 mongoose.connect(dbURI, (err) => {
   if (err) {
     console.log('Could not connect to database');
     throw err;
   }
 });
+
+const redisURL = process.env.REDISCLOUD_URL || 'redis://default:7BX2cPiqyjiWeNSsyw0qOiFh5ZXd4nVQ@redis-13552.c11.us-east-1-2.ec2.cloud.redislabs.com:13552';
+
+const redisClient = redis.createClient({
+  legacyMode: true,
+  url: redisURL,
+});
+redisClient.connect().catch(console.error);
 
 const app = express();
 
@@ -31,9 +41,15 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(session({
   key: 'sessionid',
+  store: new RedisStore({
+    client: redisClient,
+  }),
   secret: 'Domo Arigato',
   resave: true,
   saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+  },
 }));
 app.engine('handlebars', expressHandlebars.engine({ defaultLayout: '' }));
 app.set('view engine', 'handlebars');
