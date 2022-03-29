@@ -8,7 +8,7 @@ const loginPage = (req, res) => {
 
 const signupPage = (req, res) => {
   res.render('signup', { csrfToken: req.csrfToken() });
-}
+};
 
 const logout = (req, res) => {
   req.session.destroy();
